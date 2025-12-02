@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Radiomics.jl Benefits</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            width: 800px;
+            height: 500px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-top: 5px solid #ccc;
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+        .card p {
+            font-size: 0.9em;
+            color: #666;
+            flex-grow: 1;
+        }
+        .icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .std { border-color: #2196F3; }
+        .std .icon { color: #2196F3; }
+
+        .perf { border-color: #F44336; }
+        .perf .icon { color: #F44336; }
+
+        .repro { border-color: #4CAF50; }
+        .repro .icon { color: #4CAF50; }
+
+        .dev { border-color: #FF9800; }
+        .dev .icon { color: #FF9800; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card std">
+        <div class="icon">📏</div>
+        <h3>IBSI Standardization</h3>
+        <p>Fully compliant with Image Biomarker Standardization Initiative benchmarks, ensuring features are mathematically consistent and valid for multi-center studies.</p>
+    </div>
+    <div class="card perf">
+        <div class="icon">🚀</div>
+        <h3>High Performance</h3>
+        <p>Solves the "Two-Language Problem". Pure Julia code compiles to native machine code, matching C/C++ speed for large-scale volumetric analysis.</p>
+    </div>
+    <div class="card repro">
+        <div class="icon">🔒</div>
+        <h3>Reproducibility</h3>
+        <p>Leverages Julia's <code>Pkg.jl</code> (Project.toml/Manifest.toml) to guarantee exact environment replication, solving "dependency hell" and ensuring consistent results.</p>
+    </div>
+    <div class="card dev">
+        <div class="icon">🔧</div>
+        <h3>Hackability</h3>
+        <p>"Julia all the way down". Source code is readable and modifiable by researchers, fostering transparency and rapid algorithmic innovation without C++ barriers.</p>
+    </div>
+</div>
+
+</body>
+</html>
