@@ -1,0 +1,199 @@
+\documentclass[preprint,12pt]{elsarticle}
+
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{lineno}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{float}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+
+\lstdefinelanguage{Julia}%
+  {morekeywords={abstract,break,case,catch,const,continue,do,else,elseif,%
+      end,export,false,for,function,immutable,import,importall,if,in,%
+      macro,module,otherwise,quote,return,switch,true,try,type,typealias,%
+      using,while},%
+   sensitive=true,%
+   morecomment=[l]\#,%
+   morecomment=[n]{\#=}{=\#},%
+   morestring=[b]",%
+   morestring=[m]',%
+   morestring=[s]{`}{`},%
+   morestring=[b]"""%
+  }[keywords,comments,strings]
+
+\journal{SoftwareX}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Radiomics.jl: A Julia Package for High-Performance Radiomic Feature Extraction}
+
+\author[1]{Jules the AI}
+\ead{jules@example.com}
+
+\address[1]{Artificial Intelligence Lab}
+
+\begin{abstract}
+Radiomics revolutionizes medical image analysis by shifting the paradigm from qualitative visual interpretation to the high-throughput extraction of quantitative data. This process enables the discovery of non-invasive biomarkers for tumor characterization, prognosis, and treatment prediction. However, the field faces significant challenges, including the lack of standardization, reproducibility issues, and computational bottlenecks associated with large-scale volumetric analysis. Furthermore, the "two-language problem"—where researchers prototype in high-level languages like Python but require C++ for performance—hinders innovation. We present \textbf{Radiomics.jl}, an open-source library written entirely in the Julia programming language. Radiomics.jl solves the two-language problem by providing a unified, high-performance environment for feature extraction. It implements features compliant with the Image Biomarker Standardization Initiative (IBSI), facilitating reproducible research. This article explores how Julia addresses open-ended research issues, the importance of standardized open-source tools, and how Radiomics.jl accelerates the path from research to real-world clinical usage.
+\end{abstract}
+
+\begin{keyword}
+Radiomics \sep Julia \sep Medical Imaging \sep Reproducibility \sep IBSI \sep Open Source
+\end{keyword}
+
+\end{frontmatter}
+
+%% \linenumbers
+
+\section{Introduction}
+
+In the era of precision medicine, medical imaging has evolved from a qualitative diagnostic tool into a source of mineable quantitative data. Radiomics, the process of extracting high-dimensional quantitative features from medical images, allows for the characterization of tissue heterogeneity, potentially revealing sub-visual disease characteristics \cite{NiocheOrlhac2018}. These radiomic signatures have shown promise in predicting genetic mutations (radiogenomics), treatment response, and patient survival \cite{TonneauPhan2023}. Radiomics revolutionizes analysis by treating images as data, enabling "virtual biopsies" that characterize whole-tumor heterogeneity without invasive procedures \cite{NiocheOrlhac2018, TonneauPhan2023}.
+
+However, the widespread clinical adoption of radiomics is impeded by several technical hurdles. First, the lack of standardization in feature definitions and image processing leads to poor reproducibility; different software often yields different results for the same image \cite{BettinelliBranchini2020, FornaconWoodMistry2020}. Second, the computational burden of processing large, high-resolution volumetric datasets requires high-performance software. Traditional approaches often rely on complex, multi-language architectures (e.g., Python wrappers around C++ backends) to achieve necessary speed \cite{SiscoWang2021, AhnRoss2015}. This "two-language problem" creates a barrier for researchers who wish to innovate but lack low-level programming expertise \cite{BezansonChen2018}.
+
+\textbf{Radiomics.jl} addresses these challenges by providing a pure Julia implementation of standard radiomic features. Julia combines the ease of use of dynamic languages like Python with the speed of compiled languages like C/C++, solving the two-language problem and facilitating rapid prototyping and efficient deployment \cite{BezansonChen2018, RoeschGreener2023}.
+
+\section{Scientific Background and Challenges}
+
+\subsection{How Julia Helps in Scientific Computing}
+
+Julia addresses critical challenges in scientific computing primarily by solving the "two-language problem" \cite{BezansonChen2018}. Historically, researchers used productivity languages (Python, R) for prototyping and performance languages (C++, Fortran) for implementation. This split is costly and prone to errors \cite{BoseGannod2022}. Julia allows researchers to write high-level code that compiles to efficient native machine code via LLVM, eliminating the need to switch languages for performance \cite{BezansonChen2018}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{infographic_julia.png}
+\caption{Visualizing the Two-Language Problem and the Julia Solution. Traditional workflows often require rewriting slow Python/MATLAB prototypes in C/C++, creating a bottleneck. Julia offers a unified high-performance environment, streamlining development and deployment.}
+\label{fig:julia_problem}
+\end{figure}
+
+Julia's design, centering on multiple dispatch and type stability, allows for:
+\begin{itemize}
+    \item \textbf{Performance:} Competitive with C/C++, demonstrated in MRI analysis where processing times dropped from over 20 minutes (MATLAB) to under one minute (Julia) \cite{SiscoWang2021}.
+    \item \textbf{Composability:} Diverse packages can work together seamlessly without "glue code" \cite{RoeschGreener2023}.
+    \item \textbf{Hardware Acceleration:} Native support for GPU kernels in high-level code, significantly lowering the barrier for accelerating algorithms \cite{AhnRoss2015, HeideBerg2024}.
+\end{itemize}
+
+\subsection{Difficulties in Medical Imaging Formats}
+
+Medical imaging data presents unique difficulties compared to standard digital photography. Images are defined not just by pixel content but by critical spatial metadata: origin, voxel spacing, and direction cosines \cite{YanivLowekamp2017}.
+\begin{itemize}
+    \item \textbf{Spatial Definition:} Ignoring metadata leads to errors, as binary operations are only valid if images occupy the exact same physical space \cite{YanivLowekamp2017}.
+    \item \textbf{Interoperability:} Converting between formats (e.g., DICOM to NIfTI) often strips essential contextual metadata required for clinical interpretation \cite{BridgeGorman2022}.
+    \item \textbf{Acquisition Variability:} Differences in scanner hardware and protocols introduce non-biological variations ("batch effects") that complicate reproducibility \cite{SchurinkKranen2021}.
+\end{itemize}
+
+\subsection{The Role of Standardization and Open Source}
+
+Standardization is the path to reproducible research and real-world usage. The Image Biomarker Standardization Initiative (IBSI) provides consensus-based definitions for radiomic features \cite{BettinelliBranchini2020}. Open-source libraries like Radiomics.jl and PyRadiomics \cite{GriethuysenFedorov2017} implement these standards, ensuring that features extracted in different studies are mathematically consistent.
+
+Standardized open-source tools boost productivity by:
+\begin{enumerate}
+    \item \textbf{Abstracting Complexity:} Libraries like SimpleITK and Highdicom handle low-level file parsing and encoding, allowing researchers to focus on algorithms \cite{LowekampChen2013, BridgeGorman2022}.
+    \item \textbf{Ensuring Reproducibility:} Open implementations allow the community to inspect code ("no black boxes") and verify IBSI compliance \cite{SchindelinRueden2015}.
+    \item \textbf{Harmonization:} Tools like ComBat can be integrated to remove batch effects, enabling large-scale multi-center studies \cite{JiaLi2024}.
+\end{enumerate}
+
+\section{Software Description: Radiomics.jl}
+
+\textbf{Radiomics.jl} is a high-performance, open-source library designed to meet the rigorous demands of modern radiomics research. It aligns with the standardization of PyRadiomics but leverages Julia's architecture for superior performance and flexibility.
+
+\subsection{Architecture and Workflow}
+
+The library is designed for a streamlined workflow:
+\begin{enumerate}
+    \item \textbf{Input:} Accepts 3D medical images and masks (ROI).
+    \item \textbf{Preprocessing:} Performs necessary resampling and discretization to ensure IBSI compliance.
+    \item \textbf{Feature Extraction:} Computes shape, first-order, and texture features (GLCM, GLRLM, GLSZM, GLDM, NGTDM).
+    \item \textbf{Output:} Returns a structured dictionary of features ready for analysis.
+\end{enumerate}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=1.0\textwidth]{infographic_workflow.png}
+\caption{Radiomics.jl Workflow. The pipeline ensures IBSI compliance at every stage, from preprocessing to feature extraction, facilitating reproducible analysis.}
+\label{fig:radiomics_workflow}
+\end{figure}
+
+\subsection{Key Features}
+
+\begin{itemize}
+    \item \textbf{IBSI Compliance:} Implements standardized feature definitions (excluding wavelets) to ensure comparability with other compliant software like PyRadiomics \cite{BettinelliBranchini2020}.
+    \item \textbf{Pure Julia:} The entire stack is written in Julia, making the code readable and "hackable." Users can modify feature definitions without dealing with C++ extensions.
+    \item \textbf{Speed:} Optimized for high-throughput processing of large volumetric datasets, addressing the need for speed in real-world clinical usage \cite{SiscoWang2021}.
+\end{itemize}
+
+\section{Impact and Potential}
+
+\subsection{Why Speed Matters}
+Speed is critical for real-world usage. Clinical workflows require results in minutes, not hours. For example, rapid parameter estimation in MRI (under one minute) enables "on the fly" diagnostics \cite{SiscoWang2021}. Radiomics.jl provides the computational efficiency needed for:
+\begin{itemize}
+    \item \textbf{Large-Scale Studies:} Analyzing thousands of scans in biobanks (e.g., UK Biobank) \cite{FauconSamaroo2022}.
+    \item \textbf{Real-Time Applications:} Intra-operative guidance where processing delays are unacceptable \cite{ReinertsenCollins2021}.
+\end{itemize}
+
+\subsection{Solving Open-Ended Research Issues}
+Radiomics.jl helps resolve several open-ended research issues:
+\begin{itemize}
+    \item \textbf{Reproducibility Crisis:} By using Julia's \texttt{Pkg.jl}, Radiomics.jl ensures rigorous environment reproducibility, recording exact dependency versions \cite{ChuravyGodoy2022}.
+    \item \textbf{New Ways of Analysis:} Julia's ecosystem allows for unique combinations of libraries. Radiomics.jl can be easily composed with differential equation solvers or graph theory packages for novel feature extraction methods not easily available in other languages \cite{RoeschGreener2023}.
+    \item \textbf{Standardization vs. Innovation:} It bridges the gap between using standardized tools (for validation) and having a flexible platform for developing new, experimental biomarkers \cite{KnoppGrosser2021}.
+\end{itemize}
+
+\section{Illustrative Example}
+
+\begin{lstlisting}[language=Julia, caption=Feature Extraction with Radiomics.jl]
+using Radiomics
+
+# Generate synthetic 3D image and mask
+img = rand(Float32, 50, 50, 10)
+mask = zeros(Int, 50, 50, 10)
+mask[20:30, 20:30, 2:8] .= 1
+
+# Define voxel spacing (e.g., 1mm isotropic)
+spacing = [1.0f0, 1.0f0, 1.0f0]
+
+# Extract features
+features = extract_radiomic_features(img, mask, spacing; verbose=true)
+
+# Access a specific feature
+println("GLCM Contrast: ", features["glcm_Contrast"])
+\end{lstlisting}
+
+This simple API allows researchers to integrate radiomics into complex pipelines with minimal overhead.
+
+\section{Conclusion}
+
+Radiomics.jl represents a significant step forward in democratizing high-performance medical image analysis. By strictly adhering to IBSI standards and leveraging the Julia programming language, it solves the two-language problem, improves reproducibility, and provides the speed necessary for clinical translation. It empowers the scientific community to move beyond black-box tools and towards transparent, scalable, and reproducible radiomics research.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{bibl}
+
+\end{document}
