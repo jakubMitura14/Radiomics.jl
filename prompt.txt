@@ -1,0 +1,28 @@
+You are expert in writing scientific articles for SoftwareX journal. 
+based on source_text and current repository (analize all files) and example SoftwareX articles in soft folder. Write article to publish current repository 
+Example questions that the article should answer are 
+"""
+How julia can help in scientific computing what are the problem julia programming language solves
+
+
+What is the potential for Julia to be used in new ways (like extensive set of libraries not available in the other programming languages ) for analisis and processing of medical images 
+
+What are difficulties related to medical imaging format - like spatial metadata spacing direction origin ... 
+
+How open source libraries help in boosting productivity of researchers in medical imaging . 
+
+How radiomics revolutionize medical image analisis . 
+
+How standarization of radiomics is giving path to reproducible research and generalization that then can lead to real world use of radiomics based algorithms 
+
+Why speed of radiomics processing is important for real world usage. 
+
+What are open ended research issues with radiomics that julia programming language can help to resolve. 
+
+Why is it important to use standardised open source tools for medical imaging processing 
+""" 
+Analize "source_text" in detail and make sure to use the citations as represented there. 
+Make sure to add infographics in html then render them to png and attach to paper.   In order to get proper formating analize "elsdoc-1.pdf" necessary files are in elsarticle folder. Make sure to explain why the package is valuable for scientific community.
+
+Your main goal is to create main.tex that will be a great article , be sure that becouse radiomics.jl is implemeting the same features apar from wavelet ones as pyradiomics it inherit its standarization , and meets criteria requested in litrature and also make it easy to reason about for new users used to pyradiomics. 
+. Work step by step . 
